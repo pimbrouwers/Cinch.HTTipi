@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -9,19 +10,19 @@ using System.Threading.Tasks;
 namespace Cinch.Tipi
 {
     public interface ITipi
-    {
-        Task<string> Get(string url);
+    {        
         Task<T> Get<T>(string url);
+        Task<T> Post<T>(string url, string payloadStr);
+        Task<T> Put<T>(string url, string payloadStr);
+        Task<T> Delete<T>(string url);
 
-        Task<string> Post(string url, string payloadStr);
-        Task<string> Put(string url, string payloadStr);
-        Task<string> Delete(string url);
+        Task<T> Execute<T>(ITipiRequestBuilder requestBuilder);
     }
 
     public class Tipi : ITipi
     {
-        ILogger log;
-        HttpClient client;
+        readonly ILogger log;
+        readonly HttpClient client;
 
         public Tipi(ILoggerFactory logFactory)
         {
@@ -29,63 +30,51 @@ namespace Cinch.Tipi
             this.client = new HttpClient();
         }
 
-        public async Task<string> Delete(string url)
-        {
-            Uri uri = ParseUrl(url);
-
-            InitializeClient(uri);
-
-            return await ExecuteRequest(BuildRequest(HttpMethod.Delete, uri));
-        }
-
-        public async Task<string> Get(string url)
-        {
-            Uri uri = ParseUrl(url);
-
-            InitializeClient(uri);
-
-            return await ExecuteRequest(BuildRequest(HttpMethod.Get, uri));
-        }
-
         public async Task<T> Get<T>(string url)
         {
-            T resp = default(T);
-            var respStr = await Get(url);
+            var requestBuilder = new TipiRequestBuilder().SetUri(url);
+            var respStr = await ExecuteRequest(requestBuilder.Build());
 
-            if (!string.IsNullOrWhiteSpace(respStr))
-            {
-                resp = JsonConvert.DeserializeObject<T>(respStr);
-            }
-
-            return resp;
+            return HandleResponse<T>(respStr);
         }
 
-        public async Task<string> Post(string url, string payloadStr)
+        public async Task<T> Post<T>(string url, string payloadStr)
         {
-            Uri uri = ParseUrl(url);
+            var requestBuilder = new TipiRequestBuilder().SetUri(url)
+                                              .SetMethod(HttpMethod.Post)
+                                              .WithContent(new StringContent(payloadStr, Encoding.UTF8, "application/json"));
 
-            InitializeClient(uri);
+            var respStr = await ExecuteRequest(requestBuilder.Build());
 
-            return await ExecuteRequest(BuildRequest(HttpMethod.Post, uri, payloadStr));
+            return HandleResponse<T>(respStr);
         }
 
-        public async Task<string> Put(string url, string payloadStr)
+        public async Task<T> Put<T>(string url, string payloadStr)
         {
-            Uri uri = ParseUrl(url);
+            var requestBuilder = new TipiRequestBuilder().SetUri(url)
+                                              .SetMethod(HttpMethod.Put)
+                                              .WithContent(new StringContent(payloadStr, Encoding.UTF8, "application/json"));
 
-            InitializeClient(uri);
+            var respStr = await ExecuteRequest(requestBuilder.Build());
 
-            return await ExecuteRequest(BuildRequest(HttpMethod.Put, uri, payloadStr));
+            return HandleResponse<T>(respStr);
         }
 
-        HttpRequestMessage BuildRequest(HttpMethod method, Uri uri, string payloadStr = null)
+        public async Task<T> Delete<T>(string url)
         {
-            var req = new HttpRequestMessage(method, uri.PathAndQuery);
+            var requestBuilder = new TipiRequestBuilder().SetUri(url)
+                                              .SetMethod(HttpMethod.Delete);
 
-            if (!string.IsNullOrWhiteSpace(payloadStr))
-                req.Content = new StringContent(payloadStr, Encoding.UTF8, "application/json");
+            var respStr = await ExecuteRequest(requestBuilder.Build());
 
-            return req;
+            return HandleResponse<T>(respStr);
+        }
+        
+        public async Task<T> Execute<T>(ITipiRequestBuilder requestBuilder)
+        {
+            var respStr = await ExecuteRequest(requestBuilder.Build());
+
+            return HandleResponse<T>(respStr);
         }
 
         async Task<string> ExecuteRequest(HttpRequestMessage req)
@@ -133,23 +122,23 @@ namespace Cinch.Tipi
             return respStr;
         }
 
-        void InitializeClient(Uri uri)
+        T HandleResponse<T>(string respStr)
         {
-            client.BaseAddress = new Uri($"{uri.Scheme}://{uri.Authority}");
-            client.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Encoding", "gzip, deflate");
-        }
+            T resp = default(T);
 
-        Uri ParseUrl(string url)
-        {
-            Uri uri = null;
-
-            if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
+            if (!string.IsNullOrWhiteSpace(respStr))
             {
-                throw new ArgumentException("The url parameter is not a valid absolute url");
+                if (typeof(T) == typeof(string))
+                {
+                    resp = (T)(object)respStr;
+                }
+                else
+                {
+                    resp = JsonConvert.DeserializeObject<T>(respStr);
+                }
             }
 
-            return uri;
+            return resp;
         }
-
     }
 }
