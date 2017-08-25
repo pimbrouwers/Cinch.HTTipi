@@ -4,27 +4,27 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 
-namespace Cinch.Tipi
+namespace Cinch.HTTipi
 {
-    public interface ITipiRequestBuilder
+    public interface IHTTipiRequestBuilder
     {
         HttpRequestMessage Build();
-        ITipiRequestBuilder SetUri(string uri);
-        ITipiRequestBuilder SetMethod(HttpMethod method);
-        ITipiRequestBuilder WithHeaders(Dictionary<string, string> headers);
-        ITipiRequestBuilder WithContent(StringContent content);
+        IHTTipiRequestBuilder SetUrl(string uri);
+        IHTTipiRequestBuilder SetMethod(HttpMethod method);
+        IHTTipiRequestBuilder WithHeaders(Dictionary<string, string> headers);
+        IHTTipiRequestBuilder WithContent(StringContent content);
 
-        ITipiRequestBuilder AddHeader(string name, string value);
+        IHTTipiRequestBuilder AddHeader(string name, string value);
     }
 
-    public class TipiRequestBuilder : ITipiRequestBuilder
+    public class HTTipiRequestBuilder : IHTTipiRequestBuilder
     {
         Uri uri;
         HttpMethod method;
         Dictionary<string, string> headers = new Dictionary<string, string>();
         StringContent content;
 
-        public TipiRequestBuilder()
+        public HTTipiRequestBuilder()
         {
             headers.Add("Accept-Encoding", "gzip, deflate");
         }
@@ -49,19 +49,19 @@ namespace Cinch.Tipi
             return req;
         }
 
-        public ITipiRequestBuilder AddHeader(string name, string value)
+        public IHTTipiRequestBuilder AddHeader(string name, string value)
         {
             headers.Add(name, value);
             return this;
         }
 
-        public ITipiRequestBuilder SetMethod(HttpMethod method)
+        public IHTTipiRequestBuilder SetMethod(HttpMethod method)
         {
             this.method = method;
             return this;
         }
 
-        public ITipiRequestBuilder SetUri(string uri)
+        public IHTTipiRequestBuilder SetUrl(string uri)
         {
             Uri u;
 
@@ -74,15 +74,15 @@ namespace Cinch.Tipi
             return this;
         }
 
-        public ITipiRequestBuilder WithContent(StringContent content)
+        public IHTTipiRequestBuilder WithContent(StringContent content)
         {
-            content = this.content;
+            this.content = content;
             return this;
         }
 
-        public ITipiRequestBuilder WithHeaders(Dictionary<string, string> headers)
+        public IHTTipiRequestBuilder WithHeaders(Dictionary<string, string> headers)
         {
-            headers.ToList().ForEach(x => this.headers.Add(x.Key, x.Value));
+            headers?.ToList().ForEach(x => this.headers.Add(x.Key, x.Value));
             return this;
         }
     }
