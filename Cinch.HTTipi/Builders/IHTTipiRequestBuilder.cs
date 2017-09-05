@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 
 namespace Cinch.HTTipi
 {
@@ -12,7 +11,7 @@ namespace Cinch.HTTipi
         IHTTipiRequestBuilder SetUrl(string uri);
         IHTTipiRequestBuilder SetMethod(HttpMethod method);
         IHTTipiRequestBuilder WithHeaders(Dictionary<string, string> headers);
-        IHTTipiRequestBuilder WithContent(StringContent content);
+        IHTTipiRequestBuilder WithContent(HttpContent content);
 
         IHTTipiRequestBuilder AddHeader(string name, string value);
     }
@@ -22,7 +21,7 @@ namespace Cinch.HTTipi
         Uri uri;
         HttpMethod method;
         Dictionary<string, string> headers = new Dictionary<string, string>();
-        StringContent content;
+        HttpContent content;
 
         public HTTipiRequestBuilder()
         {
@@ -74,7 +73,7 @@ namespace Cinch.HTTipi
             return this;
         }
 
-        public IHTTipiRequestBuilder WithContent(StringContent content)
+        public IHTTipiRequestBuilder WithContent(HttpContent content)
         {
             this.content = content;
             return this;

@@ -2,6 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Makes HTTP requests easier</Description>
+    <PackageTags>http rest api httpwrapper</PackageTags>
+    <PackageLicenseUrl>https://github.com/pimbrouwers/Cinch.HTTipi/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageIconUrl>http://www.pimbrouwers.com/cinch.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/pimbrouwers/Cinch.HTTipi</PackageProjectUrl>
+    <Copyright>2017</Copyright>
+    <RepositoryUrl>https://github.com/pimbrouwers/Cinch.HTTipi</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
