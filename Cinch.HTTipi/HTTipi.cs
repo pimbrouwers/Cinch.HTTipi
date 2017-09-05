@@ -30,9 +30,9 @@ namespace Cinch.HTTipi
         readonly ILogger log;
         readonly HttpClient client;
 
-        public HTTipi(ILoggerFactory logFactory)
+        public HTTipi(ILogger logger)
         {
-            this.log = logFactory.CreateLogger<HTTipi>();
+            this.log = logger;
             this.client = new HttpClient();
         }
 
