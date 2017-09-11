@@ -29,11 +29,18 @@ namespace Cinch.HTTipi
     {
         readonly ILogger log;
         readonly HttpClient client;
+        readonly JsonSerializerSettings jsonSettings;
 
-        public HTTipi(ILogger logger)
+        public HTTipi(ILogger logger, JsonSerializerSettings jsonSettings = null)
         {
             this.log = logger;
             this.client = new HttpClient();
+
+            if(jsonSettings != null)
+            {
+                
+            }
+            
         }
 
         public async Task<T> Get<T>(string url, Dictionary<string, string> headers = null)
@@ -67,11 +74,11 @@ namespace Cinch.HTTipi
                                                             .SetMethod(HttpMethod.Put)
                                                             .WithHeaders(headers);
 
-            if(json != null)
+            if (json != null)
             {
                 requestBuilder.WithContent(new StringContent(json, Encoding.UTF8, "application/json"));
             }
-                                                            
+
 
             return await Execute<T>(requestBuilder);
         }
@@ -104,19 +111,22 @@ namespace Cinch.HTTipi
 
         public async Task<T> Execute<T>(IHTTipiRequestBuilder requestBuilder)
         {
-            var respStr = await ExecuteRequest(requestBuilder.Build());
+            T resp = default(T);
 
-            return HandleResponse<T>(respStr);
+            await ExecuteRequest(requestBuilder.Build(), sr =>
+            {
+                resp = HandleResponse<T>(sr);
+            });
+
+            return resp;
         }
         public async Task Execute(IHTTipiRequestBuilder requestBuilder)
         {
             await ExecuteRequest(requestBuilder.Build());
         }
 
-        async Task<string> ExecuteRequest(HttpRequestMessage req)
+        async Task ExecuteRequest(HttpRequestMessage req, Action<StreamReader> responseHandler = null)
         {
-            string respStr = string.Empty;
-
             using (var resp = await client.SendAsync(req))
             using (var strm = await resp.Content.ReadAsStreamAsync())
             {
@@ -139,16 +149,17 @@ namespace Cinch.HTTipi
                 {
                     using (var sr = new StreamReader(s))
                     {
-                        respStr = await sr.ReadToEndAsync();
                         if (!resp.IsSuccessStatusCode)
                         {
+                            string respStr = await sr.ReadToEndAsync();
                             string err = $"{(int)resp.StatusCode}: {resp.StatusCode} Request({req.RequestUri}) failed with error: {respStr}";
                             log.LogError(err);
 
                             throw new HTTipiException((int)resp.StatusCode, err, respStr);
                         }
-
+                        
                         log.LogInformation($"{(int)resp.StatusCode}: {resp.StatusCode} Request({req.RequestUri}) succeeded");
+                        responseHandler?.Invoke(sr);
                     }
                 }
                 finally
@@ -156,27 +167,16 @@ namespace Cinch.HTTipi
                     s.Dispose();
                 }
             }
-
-            return respStr;
         }
 
-        T HandleResponse<T>(string respStr)
+        T HandleResponse<T>(StreamReader sr)
         {
-            T resp = default(T);
-
-            if (!string.IsNullOrWhiteSpace(respStr))
+            using (var jsonReader = new JsonTextReader(sr))
             {
-                if (typeof(T) == typeof(string))
-                {
-                    resp = (T)(object)respStr;
-                }
-                else
-                {
-                    resp = JsonConvert.DeserializeObject<T>(respStr);
-                }
-            }
+                var jsonSerializer = JsonSerializer.Create(jsonSettings);
 
-            return resp;
+                return jsonSerializer.Deserialize<T>(jsonReader);
+            }
         }
     }
 }
