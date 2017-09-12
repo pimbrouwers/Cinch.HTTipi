@@ -38,7 +38,7 @@ namespace Cinch.HTTipi
 
             if(jsonSettings != null)
             {
-                
+                this.jsonSettings = jsonSettings;
             }
             
         }
