@@ -18,6 +18,8 @@ namespace Cinch.HTTipi
         Task Post(string url, string json, Dictionary<string, string> headers = null);
         Task<T> Put<T>(string url, string json, Dictionary<string, string> headers = null);
         Task Put(string url, string json, Dictionary<string, string> headers = null);
+        Task<T> Patch<T>(string url, string json, Dictionary<string, string> headers = null);
+        Task Patch(string url, string json, Dictionary<string, string> headers = null);
         Task<T> Delete<T>(string url, Dictionary<string, string> headers = null);
         Task Delete(string url, Dictionary<string, string> headers = null);
 
@@ -27,11 +29,11 @@ namespace Cinch.HTTipi
 
     public class HTTipi : IHTTipi
     {
-        readonly ILogger log;
+        readonly ILogger<HTTipi> log;
         readonly HttpClient client;
         readonly JsonSerializerSettings jsonSettings;
 
-        public HTTipi(ILogger logger, JsonSerializerSettings jsonSettings = null)
+        public HTTipi(ILogger<HTTipi> logger, JsonSerializerSettings jsonSettings = null)
         {
             this.log = logger;
             this.client = new HttpClient();
@@ -40,7 +42,7 @@ namespace Cinch.HTTipi
             {
                 this.jsonSettings = jsonSettings;
             }
-            
+                        
         }
 
         public async Task<T> Get<T>(string url, Dictionary<string, string> headers = null)
@@ -86,6 +88,30 @@ namespace Cinch.HTTipi
         {
             var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
                                                             .SetMethod(HttpMethod.Put)
+                                                            .WithHeaders(headers)
+                                                            .WithContent(new StringContent(json, Encoding.UTF8, "application/json"));
+
+            await Execute(requestBuilder);
+        }
+
+        public async Task<T> Patch<T>(string url, string json = null, Dictionary<string, string> headers = null)
+        {
+            var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
+                                                            .SetMethod(new HttpMethod("PATCH"))
+                                                            .WithHeaders(headers);
+
+            if (json != null)
+            {
+                requestBuilder.WithContent(new StringContent(json, Encoding.UTF8, "application/json"));
+            }
+
+
+            return await Execute<T>(requestBuilder);
+        }
+        public async Task Patch(string url, string json, Dictionary<string, string> headers = null)
+        {
+            var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
+                                                            .SetMethod(new HttpMethod("PATCH"))
                                                             .WithHeaders(headers)
                                                             .WithContent(new StringContent(json, Encoding.UTF8, "application/json"));
 
@@ -173,7 +199,16 @@ namespace Cinch.HTTipi
         {
             using (var jsonReader = new JsonTextReader(sr))
             {
-                var jsonSerializer = JsonSerializer.Create(jsonSettings);
+                JsonSerializer jsonSerializer;
+                
+                if(jsonSettings != null)
+                {
+                    jsonSerializer = JsonSerializer.Create(jsonSettings);
+                }
+                else
+                {
+                    jsonSerializer = new JsonSerializer();
+                }                
 
                 return jsonSerializer.Deserialize<T>(jsonReader);
             }
