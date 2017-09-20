@@ -13,18 +13,18 @@ namespace Cinch.HTTipi
 {
     public interface IHTTipi
     {
-        Task<T> Get<T>(string url, Dictionary<string, string> headers = null);
-        Task<T> Post<T>(string url, string json, Dictionary<string, string> headers = null);
-        Task Post(string url, string json, Dictionary<string, string> headers = null);
-        Task<T> Put<T>(string url, string json, Dictionary<string, string> headers = null);
-        Task Put(string url, string json, Dictionary<string, string> headers = null);
-        Task<T> Patch<T>(string url, string json, Dictionary<string, string> headers = null);
-        Task Patch(string url, string json, Dictionary<string, string> headers = null);
-        Task<T> Delete<T>(string url, Dictionary<string, string> headers = null);
-        Task Delete(string url, Dictionary<string, string> headers = null);
+        Task<T> Get<T>(string url, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null);
+        Task<T> Post<T>(string url, string json, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null);
+        Task Post(string url, string json, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null);
+        Task<T> Put<T>(string url, string json, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null);
+        Task Put(string url, string json, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null);
+        Task<T> Patch<T>(string url, string json, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null);
+        Task Patch(string url, string json, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null);
+        Task<T> Delete<T>(string url, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null);
+        Task Delete(string url, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null);
 
-        Task<T> Execute<T>(IHTTipiRequestBuilder requestBuilder);
-        Task Execute(IHTTipiRequestBuilder requestBuilder);
+        Task<T> Execute<T>(IHTTipiRequestBuilder requestBuilder, Action<HttpResponseMessage> responseMessageHandler = null);
+        Task Execute(IHTTipiRequestBuilder requestBuilder, Action<HttpResponseMessage> responseMessageHandler = null);
     }
 
     public class HTTipi : IHTTipi
@@ -38,39 +38,39 @@ namespace Cinch.HTTipi
             this.log = logger;
             this.client = new HttpClient();
 
-            if(jsonSettings != null)
+            if (jsonSettings != null)
             {
                 this.jsonSettings = jsonSettings;
             }
-                        
+
         }
 
-        public async Task<T> Get<T>(string url, Dictionary<string, string> headers = null)
+        public async Task<T> Get<T>(string url, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
         {
             var requestBuilder = new HTTipiRequestBuilder().SetUrl(url).WithHeaders(headers);
-            return await Execute<T>(requestBuilder);
+            return await Execute<T>(requestBuilder, responseMessageHandler);
         }
 
-        public async Task<T> Post<T>(string url, string json, Dictionary<string, string> headers = null)
+        public async Task<T> Post<T>(string url, string json, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
         {
             var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
                                                             .SetMethod(HttpMethod.Post)
                                                             .WithHeaders(headers)
                                                             .WithContent(new StringContent(json, Encoding.UTF8, "application/json"));
 
-            return await Execute<T>(requestBuilder);
+            return await Execute<T>(requestBuilder, responseMessageHandler);
         }
-        public async Task Post(string url, string json, Dictionary<string, string> headers = null)
+        public async Task Post(string url, string json, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
         {
             var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
                                                             .SetMethod(HttpMethod.Post)
                                                             .WithHeaders(headers)
                                                             .WithContent(new StringContent(json, Encoding.UTF8, "application/json"));
 
-            await Execute(requestBuilder);
+            await Execute(requestBuilder, responseMessageHandler);
         }
 
-        public async Task<T> Put<T>(string url, string json = null, Dictionary<string, string> headers = null)
+        public async Task<T> Put<T>(string url, string json = null, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
         {
             var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
                                                             .SetMethod(HttpMethod.Put)
@@ -82,19 +82,19 @@ namespace Cinch.HTTipi
             }
 
 
-            return await Execute<T>(requestBuilder);
+            return await Execute<T>(requestBuilder, responseMessageHandler);
         }
-        public async Task Put(string url, string json, Dictionary<string, string> headers = null)
+        public async Task Put(string url, string json, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
         {
             var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
                                                             .SetMethod(HttpMethod.Put)
                                                             .WithHeaders(headers)
                                                             .WithContent(new StringContent(json, Encoding.UTF8, "application/json"));
 
-            await Execute(requestBuilder);
+            await Execute(requestBuilder, responseMessageHandler);
         }
 
-        public async Task<T> Patch<T>(string url, string json = null, Dictionary<string, string> headers = null)
+        public async Task<T> Patch<T>(string url, string json = null, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
         {
             var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
                                                             .SetMethod(new HttpMethod("PATCH"))
@@ -106,52 +106,52 @@ namespace Cinch.HTTipi
             }
 
 
-            return await Execute<T>(requestBuilder);
+            return await Execute<T>(requestBuilder, responseMessageHandler);
         }
-        public async Task Patch(string url, string json, Dictionary<string, string> headers = null)
+        public async Task Patch(string url, string json, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
         {
             var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
                                                             .SetMethod(new HttpMethod("PATCH"))
                                                             .WithHeaders(headers)
                                                             .WithContent(new StringContent(json, Encoding.UTF8, "application/json"));
 
-            await Execute(requestBuilder);
+            await Execute(requestBuilder, responseMessageHandler);
         }
 
-        public async Task<T> Delete<T>(string url, Dictionary<string, string> headers = null)
+        public async Task<T> Delete<T>(string url, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
         {
             var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
                                                             .SetMethod(HttpMethod.Delete)
                                                             .WithHeaders(headers);
 
-            return await Execute<T>(requestBuilder);
+            return await Execute<T>(requestBuilder, responseMessageHandler);
         }
-        public async Task Delete(string url, Dictionary<string, string> headers = null)
+        public async Task Delete(string url, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
         {
             var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
                                                             .SetMethod(HttpMethod.Delete)
                                                             .WithHeaders(headers);
 
-            await Execute(requestBuilder);
+            await Execute(requestBuilder, responseMessageHandler);
         }
 
-        public async Task<T> Execute<T>(IHTTipiRequestBuilder requestBuilder)
+        public async Task<T> Execute<T>(IHTTipiRequestBuilder requestBuilder, Action<HttpResponseMessage> responseMessageHandler = null)
         {
             T resp = default(T);
 
-            await ExecuteRequest(requestBuilder.Build(), sr =>
-            {
+            await ExecuteRequest(requestBuilder.Build(), responseMessageHandler, sr =>
+            {                
                 resp = HandleResponse<T>(sr);
             });
 
             return resp;
         }
-        public async Task Execute(IHTTipiRequestBuilder requestBuilder)
+        public async Task Execute(IHTTipiRequestBuilder requestBuilder, Action<HttpResponseMessage> responseMessageHandler = null)
         {
-            await ExecuteRequest(requestBuilder.Build());
+            await ExecuteRequest(requestBuilder.Build(), responseMessageHandler);
         }
 
-        async Task ExecuteRequest(HttpRequestMessage req, Action<StreamReader> responseHandler = null)
+        async Task ExecuteRequest(HttpRequestMessage req, Action<HttpResponseMessage> responseMessageHandler = null, Action<StreamReader> internalResponseStreamHandler = null)
         {
             using (var resp = await client.SendAsync(req))
             using (var strm = await resp.Content.ReadAsStreamAsync())
@@ -183,9 +183,12 @@ namespace Cinch.HTTipi
 
                             throw new HTTipiException((int)resp.StatusCode, err, respStr);
                         }
-                        
+
                         log.LogInformation($"{(int)resp.StatusCode}: {resp.StatusCode} Request({req.RequestUri}) succeeded");
-                        responseHandler?.Invoke(sr);
+                        
+                        internalResponseStreamHandler?.Invoke(sr);
+
+                        responseMessageHandler?.Invoke(resp);
                     }
                 }
                 finally
@@ -197,18 +200,19 @@ namespace Cinch.HTTipi
 
         T HandleResponse<T>(StreamReader sr)
         {
+            log.LogInformation($"Running internalResponseStreamHandler()");
             using (var jsonReader = new JsonTextReader(sr))
             {
                 JsonSerializer jsonSerializer;
-                
-                if(jsonSettings != null)
+
+                if (jsonSettings != null)
                 {
                     jsonSerializer = JsonSerializer.Create(jsonSettings);
                 }
                 else
                 {
                     jsonSerializer = new JsonSerializer();
-                }                
+                }
 
                 return jsonSerializer.Deserialize<T>(jsonReader);
             }

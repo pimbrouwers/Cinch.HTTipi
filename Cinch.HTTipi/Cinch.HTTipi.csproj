@@ -10,10 +10,10 @@
     <Copyright>2017</Copyright>
     <RepositoryUrl>https://github.com/pimbrouwers/Cinch.HTTipi</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <FileVersion>1.0.0.7</FileVersion>
-    <Version>1.0.7</Version>
-    <AssemblyVersion>1.0.0.7</AssemblyVersion>
-    <PackageReleaseNotes>PATCH helper method added</PackageReleaseNotes>
+    <FileVersion>1.0.0.8</FileVersion>
+    <Version>1.0.8</Version>
+    <AssemblyVersion>1.0.0.8</AssemblyVersion>
+    <PackageReleaseNotes>responseMessageHandler Action&lt;HttpResponseMessage&gt; added to all methods. Allows consumer to interact directly with response.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
