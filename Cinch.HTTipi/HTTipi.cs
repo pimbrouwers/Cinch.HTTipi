@@ -24,7 +24,7 @@ namespace Cinch.HTTipi
         Task<T> Delete<T>(string url, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null);
         Task Delete(string url, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null);
 
-        Task<T> Execute<T>(IHTTipiRequestBuilder requestBuilder, Action<StreamReader> responseStreamHandler, Action<HttpResponseMessage> responseMessageHandler = null);
+        Task<T> Execute<T>(IHTTipiRequestBuilder requestBuilder, Action<HttpResponseMessage> responseMessageHandler = null, Action<StreamReader> responseStreamHandler = null);
         Task Execute(IHTTipiRequestBuilder requestBuilder, Action<HttpResponseMessage> responseMessageHandler = null);
     }
 
@@ -49,12 +49,16 @@ namespace Cinch.HTTipi
         public async Task<T> Get<T>(string url, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
         {
             var requestBuilder = new HTTipiRequestBuilder().SetUrl(url).WithHeaders(headers);
-            return await Execute<T>(requestBuilder, sr => HandleResponse<T>(sr), responseMessageHandler);
+            return await Execute<T>(requestBuilder, responseMessageHandler);
         }
         public async Task<string> GetString(string url, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
         {
+            string resp = string.Empty;
+
             var requestBuilder = new HTTipiRequestBuilder().SetUrl(url).WithHeaders(headers);
-            return await Execute<string>(requestBuilder, async sr => await sr.ReadToEndAsync(), responseMessageHandler);
+            await Execute<string>(requestBuilder, responseMessageHandler, async sr => resp = await sr.ReadToEndAsync());
+
+            return resp;
         }
 
         public async Task<T> Post<T>(string url, string json, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
@@ -64,7 +68,7 @@ namespace Cinch.HTTipi
                                                             .WithHeaders(headers)
                                                             .WithContent(new StringContent(json, Encoding.UTF8, "application/json"));
 
-            return await Execute<T>(requestBuilder, sr => HandleResponse<T>(sr), responseMessageHandler);
+            return await Execute<T>(requestBuilder, responseMessageHandler);
         }
         public async Task Post(string url, string json, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
         {
@@ -88,7 +92,7 @@ namespace Cinch.HTTipi
             }
 
 
-            return await Execute<T>(requestBuilder, sr => HandleResponse<T>(sr), responseMessageHandler);
+            return await Execute<T>(requestBuilder, responseMessageHandler);
         }
         public async Task Put(string url, string json, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
         {
@@ -112,7 +116,7 @@ namespace Cinch.HTTipi
             }
 
 
-            return await Execute<T>(requestBuilder, sr => HandleResponse<T>(sr), responseMessageHandler);
+            return await Execute<T>(requestBuilder, responseMessageHandler);
         }
         public async Task Patch(string url, string json, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
         {
@@ -130,7 +134,7 @@ namespace Cinch.HTTipi
                                                             .SetMethod(HttpMethod.Delete)
                                                             .WithHeaders(headers);
 
-            return await Execute<T>(requestBuilder, sr => HandleResponse<T>(sr), responseMessageHandler);
+            return await Execute<T>(requestBuilder, responseMessageHandler);
         }
         public async Task Delete(string url, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
         {
@@ -141,11 +145,21 @@ namespace Cinch.HTTipi
             await Execute(requestBuilder, responseMessageHandler);
         }
 
-        public async Task<T> Execute<T>(IHTTipiRequestBuilder requestBuilder, Action<StreamReader> responseStreamHandler, Action<HttpResponseMessage> responseMessageHandler = null)
+        public async Task<T> Execute<T>(IHTTipiRequestBuilder requestBuilder, Action<HttpResponseMessage> responseMessageHandler = null, Action<StreamReader> responseStreamHandler = null)
         {
             T resp = default(T);
 
-            await ExecuteRequest(requestBuilder.Build(), responseMessageHandler, responseStreamHandler);
+            if (responseStreamHandler != null)
+            {
+                await ExecuteRequest(requestBuilder.Build(), responseMessageHandler, responseStreamHandler);
+            }
+            else
+            {
+                await ExecuteRequest(requestBuilder.Build(), responseMessageHandler, sr =>
+                {
+                    resp = HandleJsonResponse<T>(sr);
+                });
+            }
 
             return resp;
         }
@@ -154,7 +168,7 @@ namespace Cinch.HTTipi
             await ExecuteRequest(requestBuilder.Build(), responseMessageHandler);
         }
 
-        async Task ExecuteRequest(HttpRequestMessage req, Action<HttpResponseMessage> responseMessageHandler = null, Action<StreamReader> internalResponseStreamHandler = null)
+        async Task ExecuteRequest(HttpRequestMessage req, Action<HttpResponseMessage> responseMessageHandler = null, Action<StreamReader> responseStreamHandler = null)
         {
             using (var resp = await client.SendAsync(req))
             using (var strm = await resp.Content.ReadAsStreamAsync())
@@ -189,7 +203,7 @@ namespace Cinch.HTTipi
 
                         log.LogInformation($"{(int)resp.StatusCode}: {resp.StatusCode} Request({req.RequestUri}) succeeded");
                         
-                        internalResponseStreamHandler?.Invoke(sr);
+                        responseStreamHandler?.Invoke(sr);
 
                         responseMessageHandler?.Invoke(resp);
                     }
@@ -201,7 +215,7 @@ namespace Cinch.HTTipi
             }
         }
 
-        T HandleResponse<T>(StreamReader sr)
+        T HandleJsonResponse<T>(StreamReader sr)
         {            
             using (var jsonReader = new JsonTextReader(sr))
             {
