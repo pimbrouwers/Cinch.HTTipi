@@ -21,10 +21,7 @@ catch (HTTipiException ex)
 
 A more complex `PATCH` request with custom `HttpContent`.
 ```csharp
-string json = JsonConvert.SerializeObject(patchOperation);
-
-var headers = new Dictionary<string, string>();
-headers.Add("Authorization", "hmac somecrazylonghmackey");
+string json = JsonConvert.SerializeObject(new { someProperty = "newPropertyValue" }); 
 
 var req = new HTTipiRequestBuilder().SetUrl("http://someurl.com")
                                     .SetMethod(new HttpMethod("PATCH"))
