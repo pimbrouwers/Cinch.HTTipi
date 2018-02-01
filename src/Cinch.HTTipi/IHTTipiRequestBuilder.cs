@@ -12,7 +12,6 @@ namespace Cinch.HTTipi
     IHTTipiRequestBuilder SetMethod(HttpMethod method);
     IHTTipiRequestBuilder WithHeaders(Dictionary<string, string> headers);
     IHTTipiRequestBuilder WithContent(HttpContent content);
-
     IHTTipiRequestBuilder AddHeader(string name, string value);
   }
 
