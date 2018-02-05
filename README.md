@@ -9,18 +9,13 @@ Compression is automatically enabled if available (from response headers) and st
 ## Getting Started
 A simple example to execute a `GET` request deserializing JSON to CLR object.
 ```csharp
-try
-{
-  var someObject = await http.Get<SomeObject>("http://someurl.com");
-}
-catch (HTTipiException ex)
-{
-  //logging
-}
+var http = new HTTipi();
+var someObject = await http.Get<SomeObject>("http://someurl.com");
 ```
 
 A more complex `PATCH` request with custom `HttpContent`.
 ```csharp
+var http = new HTTipi();
 string json = JsonConvert.SerializeObject(new { someProperty = "newPropertyValue" }); 
 
 var req = new HTTipiRequestBuilder().SetUrl("http://someurl.com")
@@ -29,6 +24,20 @@ var req = new HTTipiRequestBuilder().SetUrl("http://someurl.com")
                                     .AddHeader("Authorization", "hmac somecrazylonghmackey")
 
 var someObject = await Execute<SomeObject>(req);
+```
+
+Exception handling.
+```csharp
+var http = new HTTipi();
+
+try
+{
+  var someObject = await http.Get<SomeObject>("http://someurl.com");
+}
+catch (HTTipiException ex)
+{
+  //logging
+}
 ```
 
 ## API
