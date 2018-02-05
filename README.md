@@ -1,4 +1,4 @@
-# Cinch.HTTipi
+# httipi
 A thin wraper around System.Net.HttpClient that makes making HTTP requests much much simpler, effectively turning several dozen lines of code into one. 
 
 Compression is automatically enabled if available (from response headers) and streams are used throughout the stack to ensure large requests are handled appropriately.
