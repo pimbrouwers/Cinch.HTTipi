@@ -1,157 +1,121 @@
-﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Cinch.HTTipi
+namespace Cinch.Httipi
 {
-  public class HTTipi : IHTTipi
+  public static class Httipi
   {
-    readonly ILogger<HTTipi> log;
-    readonly HttpClient client;
-    readonly JsonSerializerSettings jsonSettings;
+    public delegate T ReponseHandler<T>(HttpResponseMessage httpResponseMessage);
 
-    public HTTipi(ILogger<HTTipi> logger, JsonSerializerSettings jsonSettings = null)
+    public static async Task Get(
+      this HttpClient client,
+      string url,
+      Dictionary<string, string> headers = null,
+      Action<HttpResponseMessage> responseMessageHandler = null,
+      Action<StreamReader> responseStreamHandler = null)
     {
-      this.log = logger;
-      this.client = new HttpClient();
-
-      if (jsonSettings != null)
-      {
-        this.jsonSettings = jsonSettings;
-      }
-
+      var requestBuilder = new HttpRequestMessageBuilder().SetUrl(url);
+      await client.ExecuteRequest(requestBuilder, responseMessageHandler);
     }
 
-    public async Task<T> Get<T>(string url, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
-    {
-      var requestBuilder = new HTTipiRequestBuilder().SetUrl(url).WithHeaders(headers);
-      return await Execute<T>(requestBuilder, responseMessageHandler);
-    }
-    public async Task<string> GetString(string url, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
+    public static async Task<string> GetString(
+      this HttpClient client, 
+      string url, 
+      Dictionary<string, string> headers = null, 
+      Action<HttpResponseMessage> responseMessageHandler = null,
+      Action<StreamReader> responseStreamHandler = null)
     {
       string resp = string.Empty;
 
-      var requestBuilder = new HTTipiRequestBuilder().SetUrl(url).WithHeaders(headers);
-      await Execute<string>(requestBuilder, responseMessageHandler, async sr => resp = await sr.ReadToEndAsync());
+      var requestBuilder = new HttpRequestMessageBuilder().SetUrl(url).WithHeaders(headers);
+      await client.ExecuteRequest(requestBuilder, responseMessageHandler, async sr => resp = await sr.ReadToEndAsync());
 
       return resp;
     }
 
-    public async Task<T> Post<T>(string url, string json, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
+    public static async Task Post(
+      this HttpClient client,
+      string url,
+      HttpContent content,
+      Dictionary<string, string> headers = null,
+      Action<HttpResponseMessage> responseMessageHandler = null,
+      Action<StreamReader> responseStreamHandler = null)
     {
-      var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
+      var requestBuilder = new HttpRequestMessageBuilder().SetUrl(url)
                                                       .SetMethod(HttpMethod.Post)
-                                                      .WithHeaders(headers)
-                                                      .WithContent(new StringContent(json, Encoding.UTF8, "application/json"));
+                                                      .WithContent(content);
 
-      return await Execute<T>(requestBuilder, responseMessageHandler);
+      await client.ExecuteRequest(requestBuilder, responseMessageHandler);
     }
-    public async Task Post(string url, string json, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
+
+    public static async Task PostJson(
+      this HttpClient client,
+      string url,
+      string json,
+      Dictionary<string, string> headers = null,
+      Action<HttpResponseMessage> responseMessageHandler = null,
+      Action<StreamReader> responseStreamHandler = null)
     {
-      var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
+      var requestBuilder = new HttpRequestMessageBuilder().SetUrl(url)
                                                       .SetMethod(HttpMethod.Post)
-                                                      .WithHeaders(headers)
                                                       .WithContent(new StringContent(json, Encoding.UTF8, "application/json"));
 
-      await Execute(requestBuilder, responseMessageHandler);
+      await client.ExecuteRequest(requestBuilder, responseMessageHandler);
     }
 
-    public async Task<T> Put<T>(string url, string json = null, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
+    public static async Task Put(
+      this HttpClient client,
+      string url,
+      HttpContent content,
+      Dictionary<string, string> headers = null,
+      Action<HttpResponseMessage> responseMessageHandler = null,
+      Action<StreamReader> responseStreamHandler = null)
     {
-      var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
+      var requestBuilder = new HttpRequestMessageBuilder().SetUrl(url)
                                                       .SetMethod(HttpMethod.Put)
-                                                      .WithHeaders(headers);
+                                                      .WithContent(content);
 
-      if (json != null)
-      {
-        requestBuilder.WithContent(new StringContent(json, Encoding.UTF8, "application/json"));
-      }
-
-
-      return await Execute<T>(requestBuilder, responseMessageHandler);
+      await client.ExecuteRequest(requestBuilder, responseMessageHandler);
     }
-    public async Task Put(string url, string json, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
+
+    public static async Task Put(
+      this HttpClient client,
+      string url,
+      string json,
+      Dictionary<string, string> headers = null,
+      Action<HttpResponseMessage> responseMessageHandler = null,
+      Action<StreamReader> responseStreamHandler = null)
     {
-      var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
+      var requestBuilder = new HttpRequestMessageBuilder().SetUrl(url)
                                                       .SetMethod(HttpMethod.Put)
-                                                      .WithHeaders(headers)
                                                       .WithContent(new StringContent(json, Encoding.UTF8, "application/json"));
 
-      await Execute(requestBuilder, responseMessageHandler);
+      await client.ExecuteRequest(requestBuilder, responseMessageHandler);
     }
 
-    public async Task<T> Patch<T>(string url, string json = null, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
+    public static async Task Delete(
+      this HttpClient client,
+      string url,
+      Dictionary<string, string> headers = null,
+      Action<HttpResponseMessage> responseMessageHandler = null,
+      Action<StreamReader> responseStreamHandler = null)
     {
-      var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
-                                                      .SetMethod(new HttpMethod("PATCH"))
-                                                      .WithHeaders(headers);
+      var requestBuilder = new HttpRequestMessageBuilder().SetUrl(url)
+                                                      .SetMethod(HttpMethod.Delete);
 
-      if (json != null)
-      {
-        requestBuilder.WithContent(new StringContent(json, Encoding.UTF8, "application/json"));
-      }
-
-
-      return await Execute<T>(requestBuilder, responseMessageHandler);
+      await client.ExecuteRequest(requestBuilder, responseMessageHandler);
     }
-    public async Task Patch(string url, string json, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
+   
+    public static async Task ExecuteRequest(this HttpClient client, IHttpRequestMessageBuilder requestBuilder, Action<HttpResponseMessage> responseMessageHandler = null, Action<StreamReader> responseStreamHandler = null)
     {
-      var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
-                                                      .SetMethod(new HttpMethod("PATCH"))
-                                                      .WithHeaders(headers)
-                                                      .WithContent(new StringContent(json, Encoding.UTF8, "application/json"));
-
-      await Execute(requestBuilder, responseMessageHandler);
+      await client.ExecuteRequest(requestBuilder.Build(), responseMessageHandler);
     }
-
-    public async Task<T> Delete<T>(string url, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
-    {
-      var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
-                                                      .SetMethod(HttpMethod.Delete)
-                                                      .WithHeaders(headers);
-
-      return await Execute<T>(requestBuilder, responseMessageHandler);
-    }
-    public async Task Delete(string url, Dictionary<string, string> headers = null, Action<HttpResponseMessage> responseMessageHandler = null)
-    {
-      var requestBuilder = new HTTipiRequestBuilder().SetUrl(url)
-                                                      .SetMethod(HttpMethod.Delete)
-                                                      .WithHeaders(headers);
-
-      await Execute(requestBuilder, responseMessageHandler);
-    }
-
-    public async Task<T> Execute<T>(IHTTipiRequestBuilder requestBuilder, Action<HttpResponseMessage> responseMessageHandler = null, Action<StreamReader> responseStreamHandler = null)
-    {
-      T resp = default(T);
-
-      if (responseStreamHandler != null)
-      {
-        await ExecuteRequest(requestBuilder.Build(), responseMessageHandler, responseStreamHandler);
-      }
-      else
-      {
-        await ExecuteRequest(requestBuilder.Build(), responseMessageHandler, sr =>
-        {
-          resp = HandleJsonResponse<T>(sr);
-        });
-      }
-
-      return resp;
-    }
-    public async Task Execute(IHTTipiRequestBuilder requestBuilder, Action<HttpResponseMessage> responseMessageHandler = null)
-    {
-      await ExecuteRequest(requestBuilder.Build(), responseMessageHandler);
-    }
-
-    async Task ExecuteRequest(HttpRequestMessage req, Action<HttpResponseMessage> responseMessageHandler = null, Action<StreamReader> responseStreamHandler = null)
+    public static async Task ExecuteRequest(this HttpClient client, HttpRequestMessage req, Action<HttpResponseMessage> responseMessageHandler = null, Action<StreamReader> responseStreamHandler = null)
     {
       using (var resp = await client.SendAsync(req))
       using (var strm = await resp.Content.ReadAsStreamAsync())
@@ -179,15 +143,11 @@ namespace Cinch.HTTipi
             {
               string respStr = await sr.ReadToEndAsync();
               string err = $"{(int)resp.StatusCode}: {resp.StatusCode} Request({req.RequestUri}) failed with error: {respStr}";
-              log.LogError(err);
-
-              throw new HTTipiException((int)resp.StatusCode, err, respStr);
+              
+              throw new HttipiException((int)resp.StatusCode, err, respStr);
             }
-
-            log.LogInformation($"{(int)resp.StatusCode}: {resp.StatusCode} Request({req.RequestUri}) succeeded");
-
+            
             responseStreamHandler?.Invoke(sr);
-
             responseMessageHandler?.Invoke(resp);
           }
         }
@@ -195,25 +155,6 @@ namespace Cinch.HTTipi
         {
           s.Dispose();
         }
-      }
-    }
-
-    T HandleJsonResponse<T>(StreamReader sr)
-    {
-      using (var jsonReader = new JsonTextReader(sr))
-      {
-        JsonSerializer jsonSerializer;
-
-        if (jsonSettings != null)
-        {
-          jsonSerializer = JsonSerializer.Create(jsonSettings);
-        }
-        else
-        {
-          jsonSerializer = new JsonSerializer();
-        }
-
-        return jsonSerializer.Deserialize<T>(jsonReader);
       }
     }
   }

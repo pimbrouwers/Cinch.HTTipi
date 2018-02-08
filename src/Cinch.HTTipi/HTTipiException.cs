@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Cinch.HTTipi
+namespace Cinch.Httipi
 {
-  public class HTTipiException : Exception
+  public class HttipiException : Exception
   {
-    public HTTipiException(int statusCode, string message, string body)
+    public HttipiException(int statusCode, string message, string body)
     {
       StatusCode = statusCode;
       Message = message;

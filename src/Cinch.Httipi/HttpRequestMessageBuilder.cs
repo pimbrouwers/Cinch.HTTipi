@@ -2,27 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 
-namespace Cinch.HTTipi
+namespace Cinch.Httipi
 {
-  public interface IHTTipiRequestBuilder
-  {
-    HttpRequestMessage Build();
-    IHTTipiRequestBuilder SetUrl(string uri);
-    IHTTipiRequestBuilder SetMethod(HttpMethod method);
-    IHTTipiRequestBuilder WithHeaders(Dictionary<string, string> headers);
-    IHTTipiRequestBuilder WithContent(HttpContent content);
-    IHTTipiRequestBuilder AddHeader(string name, string value);
-  }
-
-  public class HTTipiRequestBuilder : IHTTipiRequestBuilder
+  public class HttpRequestMessageBuilder : IHttpRequestMessageBuilder
   {
     Uri uri;
     HttpMethod method;
     Dictionary<string, string> headers = new Dictionary<string, string>();
     HttpContent content;
 
-    public HTTipiRequestBuilder()
+    public HttpRequestMessageBuilder()
     {
       headers.Add("Accept-Encoding", "gzip, deflate");
     }
@@ -47,19 +38,19 @@ namespace Cinch.HTTipi
       return req;
     }
 
-    public IHTTipiRequestBuilder AddHeader(string name, string value)
+    public IHttpRequestMessageBuilder AddHeader(string name, string value)
     {
       headers.Add(name, value);
       return this;
     }
 
-    public IHTTipiRequestBuilder SetMethod(HttpMethod method)
+    public IHttpRequestMessageBuilder SetMethod(HttpMethod method)
     {
       this.method = method;
       return this;
     }
 
-    public IHTTipiRequestBuilder SetUrl(string uri)
+    public IHttpRequestMessageBuilder SetUrl(string uri)
     {
       Uri u;
 
@@ -72,13 +63,13 @@ namespace Cinch.HTTipi
       return this;
     }
 
-    public IHTTipiRequestBuilder WithContent(HttpContent content)
+    public IHttpRequestMessageBuilder WithContent(HttpContent content)
     {
       this.content = content;
       return this;
     }
 
-    public IHTTipiRequestBuilder WithHeaders(Dictionary<string, string> headers)
+    public IHttpRequestMessageBuilder WithHeaders(Dictionary<string, string> headers)
     {
       headers?.ToList().ForEach(x => this.headers.Add(x.Key, x.Value));
       return this;
