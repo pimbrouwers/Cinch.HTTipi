@@ -3,6 +3,6 @@ mono: none
 dotnet: 2.0.0
 dist: trusty  
 script:
-  - cd ./src/Cinch.HTTipi
+  - cd ./src/Cinch.Httipi
   - dotnet restore
   - dotnet build
