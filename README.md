@@ -15,7 +15,7 @@ var someObject = JsonConvert.DeserializeObject(await http.GetString("http://some
 
 A more complex `PATCH` request with a JSON request body and an HMAC authorization header.
 ```csharp
-var http = new HTTipi();
+var http = new HttpClient();
 string json = JsonConvert.SerializeObject(new { someProperty = "newPropertyValue" }); 
 
 var req = new HTTipiRequestBuilder().SetUrl("http://someurl.com")
@@ -23,7 +23,7 @@ var req = new HTTipiRequestBuilder().SetUrl("http://someurl.com")
                                     .WithContent(new StringContent(json, Encoding.UTF8, "application/json"))
                                     .AddHeader("Authorization", "hmac somecrazylonghmackey")
 
-await Execute(req);
+await http.Execute(req);
 ```
 
 Exception handling.
