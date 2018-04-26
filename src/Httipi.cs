@@ -23,12 +23,11 @@ namespace Cinch.Httipi
       await client.ExecuteRequest(requestBuilder, responseMessageHandler);
     }
 
-    public static async Task<string> GetString(
-      this HttpClient client, 
-      string url, 
-      Dictionary<string, string> headers = null, 
-      Action<HttpResponseMessage> responseMessageHandler = null,
-      Action<StreamReader> responseStreamHandler = null)
+    public static async Task<string> GetJson(
+      this HttpClient client,
+      string url,
+      Dictionary<string, string> headers = null,
+      Action<HttpResponseMessage> responseMessageHandler = null)
     {
       string resp = string.Empty;
 
@@ -53,19 +52,22 @@ namespace Cinch.Httipi
       await client.ExecuteRequest(requestBuilder, responseMessageHandler);
     }
 
-    public static async Task PostJson(
+    public static async Task<string> PostJson(
       this HttpClient client,
       string url,
       string json,
       Dictionary<string, string> headers = null,
-      Action<HttpResponseMessage> responseMessageHandler = null,
-      Action<StreamReader> responseStreamHandler = null)
+      Action<HttpResponseMessage> responseMessageHandler = null)
     {
+      string resp = string.Empty;
+
       var requestBuilder = new HttpRequestMessageBuilder().SetUrl(url)
                                                       .SetMethod(HttpMethod.Post)
                                                       .WithContent(new StringContent(json, Encoding.UTF8, "application/json"));
 
-      await client.ExecuteRequest(requestBuilder, responseMessageHandler);
+      await client.ExecuteRequest(requestBuilder, responseMessageHandler, async sr => resp = await sr.ReadToEndAsync());
+
+      return resp;
     }
 
     public static async Task Put(
@@ -83,19 +85,21 @@ namespace Cinch.Httipi
       await client.ExecuteRequest(requestBuilder, responseMessageHandler);
     }
 
-    public static async Task Put(
+    public static async Task<string> PutJson(
       this HttpClient client,
       string url,
       string json,
       Dictionary<string, string> headers = null,
-      Action<HttpResponseMessage> responseMessageHandler = null,
-      Action<StreamReader> responseStreamHandler = null)
+      Action<HttpResponseMessage> responseMessageHandler = null)
     {
+      string resp = string.Empty;
       var requestBuilder = new HttpRequestMessageBuilder().SetUrl(url)
                                                       .SetMethod(HttpMethod.Put)
                                                       .WithContent(new StringContent(json, Encoding.UTF8, "application/json"));
 
-      await client.ExecuteRequest(requestBuilder, responseMessageHandler);
+      await client.ExecuteRequest(requestBuilder, responseMessageHandler, async sr => resp = await sr.ReadToEndAsync());
+
+      return resp;
     }
 
     public static async Task Delete(
@@ -110,11 +114,12 @@ namespace Cinch.Httipi
 
       await client.ExecuteRequest(requestBuilder, responseMessageHandler);
     }
-   
-    public static async Task ExecuteRequest(this HttpClient client, IHttpRequestMessageBuilder requestBuilder, Action<HttpResponseMessage> responseMessageHandler = null, Action<StreamReader> responseStreamHandler = null)
+
+    public static async Task ExecuteRequest(this HttpClient client, HttpRequestMessageBuilder requestBuilder, Action<HttpResponseMessage> responseMessageHandler = null, Action<StreamReader> responseStreamHandler = null)
     {
       await client.ExecuteRequest(requestBuilder.Build(), responseMessageHandler);
     }
+
     public static async Task ExecuteRequest(this HttpClient client, HttpRequestMessage req, Action<HttpResponseMessage> responseMessageHandler = null, Action<StreamReader> responseStreamHandler = null)
     {
       using (var resp = await client.SendAsync(req))
@@ -143,10 +148,10 @@ namespace Cinch.Httipi
             {
               string respStr = await sr.ReadToEndAsync();
               string err = $"{(int)resp.StatusCode}: {resp.StatusCode} Request({req.RequestUri}) failed with error: {respStr}";
-              
+
               throw new HttipiException((int)resp.StatusCode, err, respStr);
             }
-            
+
             responseStreamHandler?.Invoke(sr);
             responseMessageHandler?.Invoke(resp);
           }
@@ -159,4 +164,3 @@ namespace Cinch.Httipi
     }
   }
 }
-

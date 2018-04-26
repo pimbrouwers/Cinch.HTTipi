@@ -2,16 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 
 namespace Cinch.Httipi
 {
-  public class HttpRequestMessageBuilder : IHttpRequestMessageBuilder
+  public class HttpRequestMessageBuilder
   {
-    Uri uri;
-    HttpMethod method;
-    Dictionary<string, string> headers = new Dictionary<string, string>();
-    HttpContent content;
+    private Uri uri;
+    private HttpMethod method;
+    private Dictionary<string, string> headers = new Dictionary<string, string>();
+    private HttpContent content;
 
     public HttpRequestMessageBuilder()
     {
@@ -38,19 +37,19 @@ namespace Cinch.Httipi
       return req;
     }
 
-    public IHttpRequestMessageBuilder AddHeader(string name, string value)
+    public HttpRequestMessageBuilder AddHeader(string name, string value)
     {
       headers.Add(name, value);
       return this;
     }
 
-    public IHttpRequestMessageBuilder SetMethod(HttpMethod method)
+    public HttpRequestMessageBuilder SetMethod(HttpMethod method)
     {
       this.method = method;
       return this;
     }
 
-    public IHttpRequestMessageBuilder SetUrl(string uri)
+    public HttpRequestMessageBuilder SetUrl(string uri)
     {
       Uri u;
 
@@ -63,13 +62,13 @@ namespace Cinch.Httipi
       return this;
     }
 
-    public IHttpRequestMessageBuilder WithContent(HttpContent content)
+    public HttpRequestMessageBuilder WithContent(HttpContent content)
     {
       this.content = content;
       return this;
     }
 
-    public IHttpRequestMessageBuilder WithHeaders(Dictionary<string, string> headers)
+    public HttpRequestMessageBuilder WithHeaders(Dictionary<string, string> headers)
     {
       headers?.ToList().ForEach(x => this.headers.Add(x.Key, x.Value));
       return this;
