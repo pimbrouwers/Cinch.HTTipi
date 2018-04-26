@@ -10,10 +10,10 @@
     <Copyright>2017</Copyright>
     <RepositoryUrl>https://github.com/pimbrouwers/htiipi</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <FileVersion>1.1.0.0</FileVersion>
-    <Version>1.1.0</Version>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <PackageReleaseNotes>BREAKING CHANGES</PackageReleaseNotes>
+    <FileVersion>1.1.1.0</FileVersion>
+    <Version>1.1.1</Version>
+    <AssemblyVersion>1.1.1.0</AssemblyVersion>
+    <PackageReleaseNotes>better json support</PackageReleaseNotes>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>Cinch.Httipi</PackageId>
     <Authors>Cinch.Httipi</Authors>
