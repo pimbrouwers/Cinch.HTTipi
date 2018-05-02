@@ -7,18 +7,18 @@
     <PackageLicenseUrl>https://github.com/pimbrouwers/httipi/blob/master/LICENSE</PackageLicenseUrl>
     <PackageIconUrl>http://www.pimbrouwers.com/cinch.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/pimbrouwers/httipi</PackageProjectUrl>
-    <Copyright>2017</Copyright>
+    <Copyright>2018</Copyright>
     <RepositoryUrl>https://github.com/pimbrouwers/htiipi</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <FileVersion>1.1.1.0</FileVersion>
-    <Version>1.1.1</Version>
-    <AssemblyVersion>1.1.1.0</AssemblyVersion>
-    <PackageReleaseNotes>better json support</PackageReleaseNotes>
+    <FileVersion>1.0.1.0</FileVersion>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <PackageId>Cinch.Httipi</PackageId>
-    <Authors>Cinch.Httipi</Authors>
-    <Company>Cinch.Httipi</Company>
-    <Product>Cinch.Httipi</Product>
+    <PackageId>Httipi</PackageId>
+    <Authors>Pim Brouwers</Authors>
+    <Company></Company>
+    <Product>Httipi</Product>
   </PropertyGroup>
 
 </Project>

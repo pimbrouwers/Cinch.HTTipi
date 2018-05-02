@@ -3,7 +3,7 @@ A .NET Standard compliant set of extenions methods for `System.Net.HttpClient` t
 
 Compression is automatically enabled if available (from response headers) and streams are used throughout the stack to ensure large requests are handled appropriately.
 
-![NuGet Version](https://img.shields.io/nuget/v/Cinch.HTTipi.svg)
+![NuGet Version](https://img.shields.io/nuget/v/Httipi.svg)
 [![Build Status](https://travis-ci.org/pimbrouwers/httipi.svg?branch=master)](https://travis-ci.org/pimbrouwers/httipi)
 
 ## Getting Started

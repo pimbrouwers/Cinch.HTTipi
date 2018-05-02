@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Cinch.Httipi
+namespace Httipi
 {
   public class HttipiException : Exception
   {

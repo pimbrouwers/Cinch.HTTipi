@@ -6,9 +6,9 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Cinch.Httipi
+namespace Httipi
 {
-  public static class Httipi
+  public static class HttpClientExtensions
   {
     public delegate T ReponseHandler<T>(HttpResponseMessage httpResponseMessage);
 
