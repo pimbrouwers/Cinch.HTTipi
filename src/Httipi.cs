@@ -32,6 +32,9 @@ namespace Httipi
       string resp = string.Empty;
 
       var requestBuilder = new HttpRequestMessageBuilder().SetUrl(url).WithHeaders(headers);
+
+      requestBuilder.AddHeader("Content-Type", "application/json");
+
       await client.ExecuteRequest(requestBuilder, responseMessageHandler, async sr => resp = await sr.ReadToEndAsync());
 
       return resp;
@@ -117,7 +120,7 @@ namespace Httipi
 
     public static async Task ExecuteRequest(this HttpClient client, HttpRequestMessageBuilder requestBuilder, Action<HttpResponseMessage> responseMessageHandler = null, Action<StreamReader> responseStreamHandler = null)
     {
-      await client.ExecuteRequest(requestBuilder.Build(), responseMessageHandler);
+      await client.ExecuteRequest(requestBuilder.Build(), responseMessageHandler, responseStreamHandler);
     }
 
     public static async Task ExecuteRequest(this HttpClient client, HttpRequestMessage req, Action<HttpResponseMessage> responseMessageHandler = null, Action<StreamReader> responseStreamHandler = null)
