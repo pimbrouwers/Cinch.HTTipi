@@ -10,10 +10,10 @@
     <Copyright>2018</Copyright>
     <RepositoryUrl>https://github.com/pimbrouwers/htiipi</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <FileVersion>1.0.1.0</FileVersion>
+    <FileVersion>1.0.0.0</FileVersion>
     <Version>1.0.1</Version>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <PackageReleaseNotes>Relative Uri support for SetUrl</PackageReleaseNotes>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>Httipi</PackageId>
     <Authors>Pim Brouwers</Authors>

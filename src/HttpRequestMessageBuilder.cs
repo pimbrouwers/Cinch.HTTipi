@@ -53,7 +53,7 @@ namespace Httipi
     {
       Uri u;
 
-      if (string.IsNullOrWhiteSpace(uri) || !Uri.TryCreate(uri, UriKind.Absolute, out u))
+      if (string.IsNullOrWhiteSpace(uri) || !Uri.TryCreate(uri, UriKind.RelativeOrAbsolute, out u))
       {
         throw new ArgumentException("uri appears to be invalid");
       }
